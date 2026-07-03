@@ -37,7 +37,7 @@ import { Separator } from '../../components/ui/separator'
 // Mock data - replace with real data from API
 const statsData = [
   {
-    title: 'Total Users',
+    title: 'Creative Team Members',
     value: '1,284',
     change: '+12.5%',
     trend: 'up',
@@ -46,7 +46,7 @@ const statsData = [
     bgColor: 'bg-[#2563EB]/10',
   },
   {
-    title: 'Active Projects',
+    title: 'Live Campaigns',
     value: '48',
     change: '+8.2%',
     trend: 'up',
@@ -64,7 +64,7 @@ const statsData = [
     bgColor: 'bg-[#06B6D4]/10',
   },
   {
-    title: 'Pending Tasks',
+    title: 'Creative Reviews Pending',
     value: '156',
     change: '-5.4%',
     trend: 'down',

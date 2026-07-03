@@ -73,7 +73,7 @@ const AuthLayout = () => {
             transition={{ delay: 0.2, duration: 0.5 }}
           >
             <h2 className="text-4xl font-bold text-white mb-4 leading-tight">
-              Where creative work flows
+              Built for creative teams who ship.
             </h2>
             <p className="text-white/70 text-base mb-10">
               From brief to delivery, every project, deadline and

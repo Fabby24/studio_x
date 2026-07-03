@@ -20,6 +20,8 @@ export const ROUTES = {
   // Error Routes
   NOT_FOUND: '/404',
   UNAUTHORIZED: '/403',
+
+  USERS: '/users',
 }
 
 export const USER_ROLES = {
@@ -32,6 +34,7 @@ export const ROLE_ROUTES = {
     default: ROUTES.ADMIN_DASHBOARD,
     allowed: [
       ROUTES.ADMIN_DASHBOARD,
+      ROUTES.USERS,
       ROUTES.CLIENTS,
       ROUTES.PROJECTS,
       ROUTES.REPORTS,

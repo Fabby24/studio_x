@@ -18,6 +18,7 @@ const TeamDashboardPage = lazy(() => import('../pages/dashboard/TeamDashboardPag
 const ProfilePage = lazy(() => import('../pages/profile/ProfilePage'))
 const NotFoundPage = lazy(() => import('../pages/errors/NotFoundPage'))
 const UnauthorizedPage = lazy(() => import('../pages/errors/UnauthorizedPage'))
+const UsersPage = lazy(() => import('../pages/users/UsersPage'))
 
 // Loading fallback
 const PageLoader = () => (
@@ -54,6 +55,7 @@ const AppRoutes = () => {
         <Route element={<ProtectedRoute allowedRoles={[USER_ROLES.ADMIN]} />}>
           <Route element={<DashboardLayout />}>
             <Route path={ROUTES.ADMIN_DASHBOARD} element={<AdminDashboardPage />} />
+            <Route path={ROUTES.USERS} element={<UsersPage />} />
           </Route>
         </Route>
 
