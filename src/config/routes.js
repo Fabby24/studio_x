@@ -22,6 +22,8 @@ export const ROUTES = {
   UNAUTHORIZED: '/403',
 
   USERS: '/users',
+
+  CLIENTS: '/clients',
 }
 
 export const USER_ROLES = {
