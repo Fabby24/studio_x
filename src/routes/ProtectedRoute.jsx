@@ -1,34 +1,26 @@
-import { Navigate, Outlet } from 'react-router-dom'
-import { useAuthStore } from '../store/authStore'
-import { ROUTES } from '../config/routes'
+import { Navigate, Outlet } from 'react-router-dom';
+import { useAuthStore } from '../store/authStore';
 
 const ProtectedRoute = ({ allowedRoles }) => {
-  const { isAuthenticated, user, isLoading } = useAuthStore()
-  
-  // Show loading state while checking auth
-  if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    )
-  }
-  
-  // Redirect to login if not authenticated
-  if (!isAuthenticated) {
-    return <Navigate to={ROUTES.LOGIN} replace />
-  }
-  
-  // Check role-based access
-  if (allowedRoles && user) {
-    const hasRequiredRole = allowedRoles.includes(user.role)
-    if (!hasRequiredRole) {
-      return <Navigate to={ROUTES.UNAUTHORIZED} replace />
+    const { isAuthenticated, user, isLoading } = useAuthStore();
+
+    if (isLoading) {
+        return (
+            <div className="flex h-screen items-center justify-center bg-[#0B132B]">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2563EB] border-t-transparent" />
+            </div>
+        );
     }
-  }
-  
-  // Render child routes
-  return <Outlet />
-}
+
+    if (!isAuthenticated) {
+        return <Navigate to="/login" replace />;
+    }
+
+    if (allowedRoles && user && !allowedRoles.includes(user.role)) {
+        return <Navigate to="/unauthorized" replace />;
+    }
+
+    return <Outlet />;
+};
 
 export default ProtectedRoute;

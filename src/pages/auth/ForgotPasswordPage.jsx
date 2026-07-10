@@ -1,207 +1,131 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Mail, ArrowLeft, CheckCircle, Loader2 } from 'lucide-react'
-import toast from 'react-hot-toast'
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Mail, ArrowLeft, CheckCircle, Loader2 } from 'lucide-react';
+import { authService } from '../../services/authService';
 
-import { forgotPasswordSchema } from '../../schemas/authSchema'
-import { authService } from '../../services/authService'
-import { ROUTES } from '../../config/routes'
-
-import { Button } from '../../components/ui/button'
-import { Input } from '../../components/ui/input'
-import { Label } from '../../components/ui/label'
+const forgotPasswordSchema = z.object({
+    email: z.string().min(1, 'Email is required').email('Please enter a valid email'),
+});
 
 const ForgotPasswordPage = () => {
-  const [isLoading, setIsLoading] = useState(false)
-  const [isSuccess, setIsSuccess] = useState(false)
-  const [submittedEmail, setSubmittedEmail] = useState('')
+    const [isLoading, setIsLoading] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    clearErrors,
-  } = useForm({
-    resolver: zodResolver(forgotPasswordSchema),
-    defaultValues: {
-      email: '',
-    },
-  })
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        clearErrors,
+    } = useForm({
+        resolver: zodResolver(forgotPasswordSchema),
+        defaultValues: { email: '' },
+    });
 
-  const onSubmit = async (data) => {
-    setIsLoading(true)
-    clearErrors()
+    const onSubmit = async (data) => {
+        setIsLoading(true);
+        clearErrors();
 
-    try {
-      await authService.forgotPassword({
-        email: data.email,
-      })
+        try {
+            await authService.forgotPassword(data.email);
+            setIsSuccess(true);
+        } catch (error) {
+            // Error handled in service
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-      setSubmittedEmail(data.email)
-      setIsSuccess(true)
-      toast.success('Password reset email sent!')
+    return (
+        <div className="w-full space-y-6 font-poppins">
+            <div className="lg:hidden text-center">
+                <div className="flex items-center justify-center gap-2">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#2563EB] to-[#7C3AED]">
+                        <span className="text-xl font-bold text-white">SX</span>
+                    </div>
+                    <div className="text-left">
+                        <h1 className="text-xl font-bold tracking-tight text-white">STUDIO X</h1>
+                        <p className="text-[8px] text-white/40 tracking-wider">TRAFFIC MANAGEMENT</p>
+                    </div>
+                </div>
+            </div>
 
-    } catch (error) {
-      if (error.message === 'User not found') {
-        setSubmittedEmail(data.email)
-        setIsSuccess(true)
-        toast.success('If an account exists with this email, you will receive a reset link.')
-      } else {
-        toast.error(error.message || 'Something went wrong. Please try again.')
-      }
-    } finally {
-      setIsLoading(false)
-    }
-  }
+            {!isSuccess ? (
+                <>
+                    <div className="space-y-2">
+                        <p className="text-xs font-semibold text-[#7C3AED] tracking-wide uppercase">Reset password</p>
+                        <h2 className="text-2xl font-bold tracking-tight text-white">Forgot your password?</h2>
+                        <p className="text-sm text-white/60">
+                            Enter your email address and we'll send you a reset link
+                        </p>
+                    </div>
 
-  const handleFieldChange = () => {
-    if (errors.email) {
-      clearErrors('email')
-    }
-  }
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-white/80">Email address</label>
+                            <div className="relative">
+                                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+                                <input
+                                    type="email"
+                                    placeholder="name@company.com"
+                                    className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-3 pl-10 text-white placeholder:text-white/40 focus:border-[#2563EB]/50 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 transition-all duration-200"
+                                    {...register('email')}
+                                    disabled={isLoading}
+                                />
+                            </div>
+                            {errors.email && (
+                                <p className="text-sm text-red-400">{errors.email.message}</p>
+                            )}
+                        </div>
 
-  return (
-    <div className="w-full max-w-md space-y-8 font-poppins">
-      {/* Mobile Logo */}
-      <div className="lg:hidden text-center">
-        <div className="flex items-center justify-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#2563EB] to-[#7C3AED]">
-            <span className="text-xl font-bold text-white">SX</span>
-          </div>
-          <div className="text-left">
-            <h1 className="text-xl font-bold tracking-tight">STUDIO X</h1>
-            <p className="text-[8px] text-muted-foreground tracking-wider">TRAFFIC MANAGEMENT</p>
-          </div>
+                        <button
+                            type="submit"
+                            disabled={isLoading}
+                            className="w-full rounded-lg bg-gradient-to-r from-[#2563EB] to-[#7C3AED] py-3 text-white font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+                        >
+                            {isLoading ? (
+                                <>
+                                    <Loader2 className="mr-2 inline h-4 w-4 animate-spin" />
+                                    Sending...
+                                </>
+                            ) : (
+                                'Send reset link'
+                            )}
+                        </button>
+
+                        <Link
+                            to="/login"
+                            className="flex items-center justify-center text-sm text-white/60 hover:text-white transition-colors"
+                        >
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Back to login
+                        </Link>
+                    </form>
+                </>
+            ) : (
+                <div className="text-center space-y-4 py-8">
+                    <div className="flex justify-center">
+                        <div className="rounded-full bg-green-500/10 p-4">
+                            <CheckCircle className="h-12 w-12 text-green-400" />
+                        </div>
+                    </div>
+                    <h3 className="text-xl font-bold text-white">Check your email</h3>
+                    <p className="text-sm text-white/60">
+                        If an account exists with this email, you will receive a password reset link.
+                    </p>
+                    <Link
+                        to="/login"
+                        className="flex items-center justify-center text-sm text-[#2563EB] hover:underline"
+                    >
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Back to login
+                    </Link>
+                </div>
+            )}
         </div>
-      </div>
+    );
+};
 
-      <AnimatePresence mode="wait">
-        {!isSuccess ? (
-          <motion.div
-            key="form"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="space-y-2">
-              <p className="text-xs font-semibold text-[#7C3AED] tracking-wide uppercase">Reset password</p>
-              <h2 className="text-2xl font-bold tracking-tight">Forgot your password?</h2>
-              <p className="text-sm text-muted-foreground">
-                Enter your email address and we'll send you a reset link
-              </p>
-            </div>
-
-            <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
-              {errors.root && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-sm text-destructive"
-                >
-                  {errors.root.message}
-                </motion.div>
-              )}
-
-              <div className="space-y-2">
-                <Label htmlFor="email">Email address</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="name@company.com"
-                    className="pl-9"
-                    {...register('email')}
-                    onChange={handleFieldChange}
-                    disabled={isLoading}
-                    aria-invalid={!!errors.email}
-                    autoFocus
-                  />
-                </div>
-                {errors.email && (
-                  <p className="text-sm text-destructive">{errors.email.message}</p>
-                )}
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full bg-gradient-to-r from-[#2563EB] to-[#7C3AED] hover:opacity-90 transition-opacity"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Sending reset link...
-                  </>
-                ) : (
-                  'Send reset link'
-                )}
-              </Button>
-
-              <Link
-                to={ROUTES.LOGIN}
-                className="flex items-center justify-center text-sm text-muted-foreground hover:text-white transition-colors"
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to login
-              </Link>
-            </form>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="success"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="text-center space-y-4">
-              <div className="flex justify-center">
-                <div className="rounded-full bg-green-500/10 p-4">
-                  <CheckCircle className="h-12 w-12 text-green-400" />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-xl font-bold">Check your email</h3>
-                <p className="text-sm text-muted-foreground">
-                  We've sent a password reset link to{' '}
-                  <span className="font-medium text-white">{submittedEmail}</span>
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  The link will expire in 24 hours
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-6 space-y-4">
-              <Button
-                variant="outline"
-                className="w-full border-white/10 hover:bg-white/5"
-                onClick={() => {
-                  setIsSuccess(false)
-                  setSubmittedEmail('')
-                }}
-              >
-                Resend email
-              </Button>
-
-              <Link
-                to={ROUTES.LOGIN}
-                className="flex items-center justify-center text-sm text-muted-foreground hover:text-white transition-colors"
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to login
-              </Link>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  )
-}
-
-export default ForgotPasswordPage
+export default ForgotPasswordPage;

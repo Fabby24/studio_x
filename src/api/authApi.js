@@ -1,38 +1,24 @@
-import { api } from './client'
+import apiClient from './client';
 
 export const authApi = {
-  // Register new user
-  register: (data) => api.post('/auth/register', data),
-  
-  // Login user
-  login: (data) => api.post('/auth/login', data),
-  
-  // Request password reset
-  forgotPassword: (data) => api.post('/auth/forgot-password', data),
-  
-  // Reset password with token
-  resetPassword: (data) => api.post('/auth/reset-password', data),
-  
-  // Get current user profile
-  getProfile: () => api.get('/auth/profile'),
-  
-  // Update user profile
-  updateProfile: (data) => api.put('/auth/profile', data),
-}
+    // Register new user with organization
+    register: (data) => apiClient.post('/auth/register', data),
 
-export const userApi = {
-  // Get all users (admin only)
-  getAllUsers: () => api.get('/users'),
-  
-  // Get user by ID (admin only)
-  getUserById: (id) => api.get(`/users/${id}`),
-  
-  // Update user status (admin only)
-  updateUserStatus: (id, status) => api.patch(`/users/${id}/status`, { status }),
-  
-  // Update user role (admin only)
-  updateUserRole: (id, role) => api.patch(`/users/${id}/role`, { role }),
-  
-  // Delete user (admin only)
-  deleteUser: (id) => api.delete(`/users/${id}`),
-}
+    // Login user
+    login: (data) => apiClient.post('/auth/login', data),
+
+    // Get current user profile
+    getProfile: () => apiClient.get('/auth/profile'),
+
+    // Request password reset
+    forgotPassword: (data) => apiClient.post('/auth/forgot-password', data),
+
+    // Reset password with token
+    resetPassword: (data) => apiClient.post('/auth/reset-password', data),
+
+    // Change password
+    changePassword: (data) => apiClient.post('/auth/change-password', data),
+
+    // Logout
+    logout: () => apiClient.post('/auth/logout'),
+};

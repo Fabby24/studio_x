@@ -1,79 +1,41 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
-import { lazy, Suspense } from 'react'
-import ProtectedRoute from './ProtectedRoute'
-import PublicRoute from './PublicRoute'
-import { ROUTES, USER_ROLES } from '../config/routes'
-
-// Layouts
-import DashboardLayout from '../components/layout/DashboardLayout'
-import AuthLayout from '../components/layout/AuthLayout'
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
+import ProtectedRoute from './ProtectedRoute';
 
 // Lazy load pages
-const LoginPage = lazy(() => import('../pages/auth/LoginPage'))
-const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'))
-const ForgotPasswordPage = lazy(() => import('../pages/auth/ForgotPasswordPage'))
-const ResetPasswordPage = lazy(() => import('../pages/auth/ResetPasswordPage'))
-const AdminDashboardPage = lazy(() => import('../pages/dashboard/AdminDashboardPage'))
-const TeamDashboardPage = lazy(() => import('../pages/dashboard/TeamDashboardPage'))
-const ProfilePage = lazy(() => import('../pages/profile/ProfilePage'))
-const NotFoundPage = lazy(() => import('../pages/errors/NotFoundPage'))
-const UnauthorizedPage = lazy(() => import('../pages/errors/UnauthorizedPage'))
-const UsersPage = lazy(() => import('../pages/users/UsersPage'))
-const ClientsPage = lazy(() => import('../pages/clients/ClientsPage'))
+const LoginPage = lazy(() => import('../pages/auth/LoginPage'));
+const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'));
+const ForgotPasswordPage = lazy(() => import('../pages/auth/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('../pages/auth/ResetPasswordPage'));
 
-// Loading fallback
 const PageLoader = () => (
-  <div className="flex h-screen items-center justify-center">
-    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-  </div>
-)
+    <div className="flex h-screen items-center justify-center bg-[#0B132B]">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2563EB] border-t-transparent" />
+    </div>
+);
 
 const AppRoutes = () => {
-  return (
-    <Suspense fallback={<PageLoader />}>
-      <Routes>
-        {/* Root path - redirect to login */}
-        <Route path="/" element={<Navigate to={ROUTES.LOGIN} replace />} />
+    return (
+        <Suspense fallback={<PageLoader />}>
+            <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<Navigate to="/login" replace />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-        {/* Auth Routes - uses AuthLayout */}
-        <Route element={<PublicRoute />}>
-          <Route element={<AuthLayout />}>
-            <Route path={ROUTES.LOGIN} element={<LoginPage />} />
-            <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
-            <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage />} />
-            <Route path={ROUTES.RESET_PASSWORD} element={<ResetPasswordPage />} />
-          </Route>
-        </Route>
+                {/* Protected Routes */}
+                <Route element={<ProtectedRoute allowedRoles={['super_admin', 'org_admin', 'team_member']} />}>
+                    <Route path="/dashboard/admin" element={<div>Admin Dashboard</div>} />
+                    <Route path="/dashboard/team" element={<div>Team Dashboard</div>} />
+                </Route>
 
-        {/* Protected Dashboard Routes - uses DashboardLayout */}
-        <Route element={<ProtectedRoute />}>
-          <Route element={<DashboardLayout />}>
-            <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
-          </Route>
-        </Route>
+                {/* Fallback */}
+                <Route path="*" element={<div>404 - Page Not Found</div>} />
+            </Routes>
+        </Suspense>
+    );
+};
 
-        {/* Admin Routes */}
-        <Route element={<ProtectedRoute allowedRoles={[USER_ROLES.ADMIN]} />}>
-          <Route element={<DashboardLayout />}>
-            <Route path={ROUTES.ADMIN_DASHBOARD} element={<AdminDashboardPage />} />
-            <Route path={ROUTES.USERS} element={<UsersPage />} />
-            <Route path={ROUTES.CLIENTS} element={<ClientsPage />} />
-          </Route>
-        </Route>
-
-        {/* Team Member Routes */}
-        <Route element={<ProtectedRoute allowedRoles={[USER_ROLES.TEAM_MEMBER]} />}>
-          <Route element={<DashboardLayout />}>
-            <Route path={ROUTES.TEAM_DASHBOARD} element={<TeamDashboardPage />} />
-          </Route>
-        </Route>
-
-        {/* Error Routes */}
-        <Route path={ROUTES.UNAUTHORIZED} element={<UnauthorizedPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </Suspense>
-  )
-}
-
-export default AppRoutes
+export default AppRoutes;

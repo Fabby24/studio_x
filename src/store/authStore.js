@@ -1,103 +1,93 @@
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
-import { tokenService } from '../services/tokenService'
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import { authApi } from '../api/authApi';
 
 export const useAuthStore = create(
-  persist(
-    (set, get) => ({
-      // State
-      user: null,
-      token: null,
-      isAuthenticated: false,
-      isLoading: false,
-      
-      // Actions
-      setUser: (user) => {
-        set({ user })
-        if (user) {
-          tokenService.setUser(user)
-        }
-      },
-      
-      setToken: (token) => {
-        set({ token })
-        if (token) {
-          tokenService.setToken(token)
-          set({ isAuthenticated: true })
-        }
-      },
-      
-      setLoading: (isLoading) => set({ isLoading }),
-      
-      login: (user, token) => {
-        set({
-          user,
-          token,
-          isAuthenticated: true,
-          isLoading: false,
-        })
-        tokenService.setToken(token)
-        tokenService.setUser(user)
-      },
-      
-      logout: () => {
-        set({
-          user: null,
-          token: null,
-          isAuthenticated: false,
-          isLoading: false,
-        })
-        tokenService.clearAll()
-      },
-      
-      updateUser: (user) => {
-        set({ user })
-        tokenService.setUser(user)
-      },
-      
-      // Check if user has specific role
-      hasRole: (role) => {
-        const { user } = get()
-        if (!user) return false
-        return user.role === role
-      },
-      
-      // Check if user is admin
-      isAdmin: () => {
-        const { user } = get()
-        return user?.role === 'admin'
-      },
-      
-      // Check if user is team member
-      isTeamMember: () => {
-        const { user } = get()
-        return user?.role === 'team_member'
-      },
-      
-      // Initialize auth from localStorage
-      initialize: () => {
-        const token = tokenService.getToken()
-        const user = tokenService.getUser()
-        
-        if (token && user) {
-          set({
-            token,
-            user,
-            isAuthenticated: true,
+    persist(
+        (set, get) => ({
+            // State
+            user: null,
+            token: null,
+            tenant: null,
+            isAuthenticated: false,
             isLoading: false,
-          })
-          return true
+
+            // Actions
+            setLoading: (isLoading) => set({ isLoading }),
+
+            setUser: (user) => set({ user }),
+            setTenant: (tenant) => set({ tenant }),
+
+            login: (user, token, tenant) => {
+                set({
+                    user,
+                    token,
+                    tenant,
+                    isAuthenticated: true,
+                    isLoading: false,
+                });
+                localStorage.setItem('token', token);
+                localStorage.setItem('tenant', JSON.stringify(tenant));
+            },
+
+            logout: () => {
+                set({
+                    user: null,
+                    token: null,
+                    tenant: null,
+                    isAuthenticated: false,
+                    isLoading: false,
+                });
+                localStorage.removeItem('token');
+                localStorage.removeItem('tenant');
+            },
+
+            initialize: async () => {
+                const token = localStorage.getItem('token');
+                const tenant = JSON.parse(localStorage.getItem('tenant') || 'null');
+
+                if (token && tenant) {
+                    set({
+                        token,
+                        tenant,
+                        isAuthenticated: true,
+                        isLoading: false,
+                    });
+                    return true;
+                }
+                return false;
+            },
+
+            updateUser: (user) => {
+                set({ user });
+                localStorage.setItem('user', JSON.stringify(user));
+            },
+
+            hasPermission: (permission) => {
+                const { user } = get();
+                if (!user) return false;
+                if (user.role === 'super_admin') return true;
+                return user.permissions?.includes(permission) || false;
+            },
+
+            isAdmin: () => {
+                const { user } = get();
+                return user?.role === 'org_admin' || user?.role === 'super_admin';
+            },
+
+            isSuperAdmin: () => {
+                const { user } = get();
+                return user?.role === 'super_admin';
+            },
+        }),
+        {
+            name: 'auth-storage',
+            partialize: (state) => ({
+                user: state.user,
+                token: state.token,
+                tenant: state.tenant,
+                isAuthenticated: state.isAuthenticated,
+            }),
         }
-        return false
-      },
-    }),
-    {
-      name: 'auth-storage',
-      partialize: (state) => ({
-        user: state.user,
-        token: state.token,
-        isAuthenticated: state.isAuthenticated,
-      }),
-    }
-  )
-)
+    )
+);
