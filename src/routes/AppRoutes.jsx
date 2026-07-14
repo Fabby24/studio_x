@@ -1,12 +1,19 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
-import ProtectedRoute from './ProtectedRoute';
+import ProtectedRoute from '../routes/ProtectedRoute';
+import AuthLayout from '../components/layout/AuthLayout';
 
-// Lazy load pages
+// Auth Pages
 const LoginPage = lazy(() => import('../pages/auth/LoginPage'));
 const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'));
 const ForgotPasswordPage = lazy(() => import('../pages/auth/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('../pages/auth/ResetPasswordPage'));
+const AuthCallbackPage = lazy(() => import('../pages/auth/AuthCallbackPage'));
+
+// Dashboard Pages
+const SuperAdminDashboard = lazy(() => import('../pages/dashboard/SuperAdminDashboardPage'));
+const AdminDashboard = lazy(() => import('../pages/dashboard/AdminDashboardPage'));
+const TeamDashboard = lazy(() => import('../pages/dashboard/TeamDashboardPage'));
 
 const PageLoader = () => (
     <div className="flex h-screen items-center justify-center bg-[#0B132B]">
@@ -18,21 +25,42 @@ const AppRoutes = () => {
     return (
         <Suspense fallback={<PageLoader />}>
             <Routes>
-                {/* Public Routes */}
-                <Route path="/" element={<Navigate to="/login" replace />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                <Route path="/reset-password" element={<ResetPasswordPage />} />
+                {/* Auth Routes with AuthLayout */}
+                <Route element={<AuthLayout />}>
+                    <Route path="/" element={<Navigate to="/login" replace />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/register" element={<RegisterPage />} />
+                    <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                    <Route path="/reset-password" element={<ResetPasswordPage />} />
+                </Route>
+
+                {/* Auth Callback (no layout) */}
+                <Route path="/auth/callback" element={<AuthCallbackPage />} />
 
                 {/* Protected Routes */}
-                <Route element={<ProtectedRoute allowedRoles={['super_admin', 'org_admin', 'team_member']} />}>
-                    <Route path="/dashboard/admin" element={<div>Admin Dashboard</div>} />
-                    <Route path="/dashboard/team" element={<div>Team Dashboard</div>} />
+                {/* Super Admin Only */}
+                <Route
+                    element={<ProtectedRoute allowedRoles={['super_admin']} />}
+                >
+                    <Route path="/dashboard/super-admin" element={<SuperAdminDashboard />} />
+                </Route>
+
+                {/* Organization Admin Only */}
+                <Route
+                    element={<ProtectedRoute allowedRoles={['org_admin']} />}
+                >
+                    <Route path="/dashboard/admin" element={<AdminDashboard />} />
+                </Route>
+
+                {/* Team Member Only */}
+                <Route
+                    element={<ProtectedRoute allowedRoles={['team_member']} />}
+                >
+                    <Route path="/dashboard/team" element={<TeamDashboard />} />
                 </Route>
 
                 {/* Fallback */}
-                <Route path="*" element={<div>404 - Page Not Found</div>} />
+                <Route path="*" element={<div className="text-white">404 - Page Not Found</div>} />
             </Routes>
         </Suspense>
     );

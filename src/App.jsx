@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './store/authStore';
 import AuthLayout from './components/layout/AuthLayout';
+import MainLayout from './components/layout/MainLayout';
 import ProtectedRoute from './routes/ProtectedRoute';
 
 // Lazy load pages
@@ -11,6 +12,16 @@ const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'));
 const ForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('./pages/auth/ResetPasswordPage'));
+const AuthCallbackPage = lazy(() => import('./pages/auth/AuthCallbackPage'));
+
+// Dashboard Pages
+const SuperAdminDashboard = lazy(() => import('./pages/dashboard/SuperAdminDashboardPage'));
+const AdminDashboard = lazy(() => import('./pages/dashboard/AdminDashboardPage'));
+const TeamDashboard = lazy(() => import('./pages/dashboard/TeamDashboardPage'));
+
+// Error Pages
+const NotFoundPage = lazy(() => import('./pages/errors/NotFoundPage'));
+const UnauthorizedPage = lazy(() => import('./pages/errors/UnauthorizedPage'));
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -49,14 +60,40 @@ function App() {
                             <Route path="/reset-password" element={<ResetPasswordPage />} />
                         </Route>
 
-                        {/* Protected Routes */}
-                        <Route element={<ProtectedRoute allowedRoles={['super_admin', 'org_admin', 'team_member']} />}>
-                            <Route path="/dashboard/admin" element={<div className="text-white">Admin Dashboard</div>} />
-                            <Route path="/dashboard/team" element={<div className="text-white">Team Dashboard</div>} />
+                        {/* Auth Callback (no layout) */}
+                        <Route path="/auth/callback" element={<AuthCallbackPage />} />
+
+                        {/* Protected Routes with MainLayout */}
+                        {/* Super Admin Only */}
+                        <Route
+                            element={<ProtectedRoute allowedRoles={['super_admin']} />}
+                        >
+                            <Route element={<MainLayout />}>
+                                <Route path="/dashboard/super-admin" element={<SuperAdminDashboard />} />
+                            </Route>
                         </Route>
 
-                        {/* Fallback */}
-                        <Route path="*" element={<div className="text-white">404 - Page Not Found</div>} />
+                        {/* Organization Admin Only */}
+                        <Route
+                            element={<ProtectedRoute allowedRoles={['org_admin']} />}
+                        >
+                            <Route element={<MainLayout />}>
+                                <Route path="/dashboard/admin" element={<AdminDashboard />} />
+                            </Route>
+                        </Route>
+
+                        {/* Team Member Only */}
+                        <Route
+                            element={<ProtectedRoute allowedRoles={['team_member']} />}
+                        >
+                            <Route element={<MainLayout />}>
+                                <Route path="/dashboard/team" element={<TeamDashboard />} />
+                            </Route>
+                        </Route>
+
+                        {/* Error Pages */}
+                        <Route path="/unauthorized" element={<UnauthorizedPage />} />
+                        <Route path="*" element={<NotFoundPage />} />
                     </Routes>
                 </Suspense>
                 <Toaster
@@ -67,18 +104,6 @@ function App() {
                             background: '#0B132B',
                             color: '#FFFFFF',
                             border: '1px solid rgba(255,255,255,0.1)',
-                        },
-                        success: {
-                            iconTheme: {
-                                primary: '#22C55E',
-                                secondary: '#0B132B',
-                            },
-                        },
-                        error: {
-                            iconTheme: {
-                                primary: '#EF4444',
-                                secondary: '#0B132B',
-                            },
                         },
                     }}
                 />
