@@ -13,11 +13,18 @@ const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'));
 const ForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('./pages/auth/ResetPasswordPage'));
 const AuthCallbackPage = lazy(() => import('./pages/auth/AuthCallbackPage'));
+const AcceptInvitePage = lazy(() => import('./pages/auth/AcceptInvitationPage'));
 
 // Dashboard Pages
 const SuperAdminDashboard = lazy(() => import('./pages/dashboard/SuperAdminDashboardPage'));
 const AdminDashboard = lazy(() => import('./pages/dashboard/AdminDashboardPage'));
 const TeamDashboard = lazy(() => import('./pages/dashboard/TeamDashboardPage'));
+
+// User Management Pages
+const UsersPage = lazy(() => import('./pages/users/UsersPage'));
+
+// Organization Management (Super Admin only)
+const OrganizationsPage = lazy(() => import('./pages/organizations/OrganizationsPage'));
 
 // Error Pages
 const NotFoundPage = lazy(() => import('./pages/errors/NotFoundPage'));
@@ -60,38 +67,53 @@ function App() {
                             <Route path="/reset-password" element={<ResetPasswordPage />} />
                         </Route>
 
-                        {/* Auth Callback (no layout) */}
+                        {/* Auth Callback & Invite (no layout) */}
                         <Route path="/auth/callback" element={<AuthCallbackPage />} />
+                        <Route path="/accept-invite" element={<AcceptInvitePage />} />
 
-                        {/* Protected Routes with MainLayout */}
-                        {/* Super Admin Only */}
-                        <Route
-                            element={<ProtectedRoute allowedRoles={['super_admin']} />}
-                        >
+                        
+                        <Route element={<ProtectedRoute allowedRoles={['super_admin']} />}>
                             <Route element={<MainLayout />}>
+                                {/* Super Admin Dashboard */}
                                 <Route path="/dashboard/super-admin" element={<SuperAdminDashboard />} />
+                                
+                                {/* Organization Management - Super Admin only */}
+                                <Route path="/organizations" element={<OrganizationsPage />} />
+                                
+                                {/* Platform Users - Super Admin can see all users across orgs */}
+                                <Route path="/platform-users" element={<UsersPage />} />
                             </Route>
                         </Route>
 
-                        {/* Organization Admin Only */}
-                        <Route
-                            element={<ProtectedRoute allowedRoles={['org_admin']} />}
-                        >
+                        
+                        <Route element={<ProtectedRoute allowedRoles={['org_admin']} />}>
                             <Route element={<MainLayout />}>
+                                {/* Organization Admin Dashboard */}
                                 <Route path="/dashboard/admin" element={<AdminDashboard />} />
+                                
+                                {/* Team Members - Org Admin sees only their organization's users */}
+                                <Route path="/users" element={<UsersPage />} />
+                                
+                                {/* Additional org admin routes will go here */}
+                                {/* <Route path="/clients" element={<ClientsPage />} /> */}
+                                {/* <Route path="/projects" element={<ProjectsPage />} /> */}
+                                {/* <Route path="/tasks" element={<TasksPage />} /> */}
                             </Route>
                         </Route>
 
-                        {/* Team Member Only */}
-                        <Route
-                            element={<ProtectedRoute allowedRoles={['team_member']} />}
-                        >
+                        
+                        <Route element={<ProtectedRoute allowedRoles={['team_member']} />}>
                             <Route element={<MainLayout />}>
+                                {/* Team Member Dashboard */}
                                 <Route path="/dashboard/team" element={<TeamDashboard />} />
+                                
+                                {/* Team members can see their own tasks */}
+                                {/* <Route path="/my-tasks" element={<MyTasksPage />} /> */}
+                                {/* <Route path="/time-tracking" element={<TimeTrackingPage />} /> */}
                             </Route>
                         </Route>
 
-                        {/* Error Pages */}
+                       
                         <Route path="/unauthorized" element={<UnauthorizedPage />} />
                         <Route path="*" element={<NotFoundPage />} />
                     </Routes>
@@ -104,6 +126,18 @@ function App() {
                             background: '#0B132B',
                             color: '#FFFFFF',
                             border: '1px solid rgba(255,255,255,0.1)',
+                        },
+                        success: {
+                            iconTheme: {
+                                primary: '#22C55E',
+                                secondary: '#0B132B',
+                            },
+                        },
+                        error: {
+                            iconTheme: {
+                                primary: '#EF4444',
+                                secondary: '#0B132B',
+                            },
                         },
                     }}
                 />

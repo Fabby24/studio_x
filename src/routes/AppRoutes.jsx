@@ -9,11 +9,16 @@ const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'));
 const ForgotPasswordPage = lazy(() => import('../pages/auth/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('../pages/auth/ResetPasswordPage'));
 const AuthCallbackPage = lazy(() => import('../pages/auth/AuthCallbackPage'));
+const AcceptInvitePage = lazy(() => import('../pages/auth/AcceptInvitePage'));
 
 // Dashboard Pages
 const SuperAdminDashboard = lazy(() => import('../pages/dashboard/SuperAdminDashboardPage'));
 const AdminDashboard = lazy(() => import('../pages/dashboard/AdminDashboardPage'));
 const TeamDashboard = lazy(() => import('../pages/dashboard/TeamDashboardPage'));
+
+//users page
+const UsersPage = lazy(() => import('../pages/users/UsersPage'));
+
 
 const PageLoader = () => (
     <div className="flex h-screen items-center justify-center bg-[#0B132B]">
@@ -36,6 +41,8 @@ const AppRoutes = () => {
 
                 {/* Auth Callback (no layout) */}
                 <Route path="/auth/callback" element={<AuthCallbackPage />} />
+                <Route path="/accept-invite" element={<AcceptInvitePage />} />
+                
 
                 {/* Protected Routes */}
                 {/* Super Admin Only */}
@@ -43,6 +50,7 @@ const AppRoutes = () => {
                     element={<ProtectedRoute allowedRoles={['super_admin']} />}
                 >
                     <Route path="/dashboard/super-admin" element={<SuperAdminDashboard />} />
+                    <Route path="/users" element={<UsersPage />} />
                 </Route>
 
                 {/* Organization Admin Only */}
@@ -50,6 +58,7 @@ const AppRoutes = () => {
                     element={<ProtectedRoute allowedRoles={['org_admin']} />}
                 >
                     <Route path="/dashboard/admin" element={<AdminDashboard />} />
+                    <Route path="/users" element={<UsersPage />} />
                 </Route>
 
                 {/* Team Member Only */}
