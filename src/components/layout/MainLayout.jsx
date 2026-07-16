@@ -1,26 +1,25 @@
-import { useState, useEffect } from 'react'
-import { Outlet } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Menu } from 'lucide-react'
+import { useState, useEffect } from 'react';
+import { Outlet } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Menu } from 'lucide-react';
 
-import { Sidebar } from './Sidebar'
-import { Navbar } from './Navbar'
-import { Button } from '../ui/button'
-import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet'
-import { useMediaQuery } from '../../hooks/useMediaQuery'
+import { Sidebar } from './Sidebar';
+import { Navbar } from './Navbar';
+import { Button } from '../ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 
 const MainLayout = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(true)
-  const isMobile = useMediaQuery('(max-width: 768px)')
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const isMobile = useMediaQuery('(max-width: 768px)');
   
-  // Close sidebar on mobile by default
   useEffect(() => {
     if (isMobile) {
-      setSidebarOpen(false)
+      setSidebarOpen(false);
     } else {
-      setSidebarOpen(true)
+      setSidebarOpen(true);
     }
-  }, [isMobile])
+  }, [isMobile]);
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -45,12 +44,12 @@ const MainLayout = () => {
           <Button
             variant="ghost"
             size="icon"
-            className="fixed left-4 top-4 z-50 lg:hidden"
+            className="fixed left-4 top-4 z-50 lg:hidden text-foreground"
           >
             <Menu className="h-5 w-5" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-[280px] p-0">
+        <SheetContent side="left" className="w-[280px] p-0 bg-card border-r border-border">
           <Sidebar />
         </SheetContent>
       </Sheet>
@@ -59,7 +58,7 @@ const MainLayout = () => {
       <div className="flex flex-1 flex-col overflow-hidden">
         <Navbar onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
         
-        <main className="flex-1 overflow-y-auto bg-slate-50/50 dark:bg-slate-900/50 p-4 md:p-6">
+        <main className="flex-1 overflow-y-auto bg-background p-4 md:p-6">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -71,7 +70,7 @@ const MainLayout = () => {
         </main>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default MainLayout
+export default MainLayout;

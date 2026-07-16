@@ -8,7 +8,7 @@ export const authApi = {
     login: (data) => apiClient.post('/auth/login', data),
 
     // Get current user profile
-    getProfile: () => apiClient.get('/auth/profile'),
+    getProfile: (config = {}) => apiClient.get('/auth/profile', config),
 
     // Request password reset
     forgotPassword: (data) => apiClient.post('/auth/forgot-password', data),

@@ -2,6 +2,20 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { authApi } from '../api/authApi';
 
+// Safely parse a JSON value from localStorage, clearing it if corrupted
+const safeParse = (key, fallback = null) => {
+    const raw = localStorage.getItem(key);
+    if (!raw || raw === 'undefined' || raw === 'null') {
+        return fallback;
+    }
+    try {
+        return JSON.parse(raw);
+    } catch (e) {
+        localStorage.removeItem(key);
+        return fallback;
+    }
+};
+
 export const useAuthStore = create(
     persist(
         (set, get) => ({
@@ -22,12 +36,12 @@ export const useAuthStore = create(
                 set({
                     user,
                     token,
-                    tenant,
+                    tenant: tenant ?? null,
                     isAuthenticated: true,
                     isLoading: false,
                 });
-                localStorage.setItem('token', token);
-                localStorage.setItem('tenant', JSON.stringify(tenant));
+                localStorage.setItem('token', token ?? '');
+                localStorage.setItem('tenant', JSON.stringify(tenant ?? null));
             },
 
             logout: () => {
@@ -40,13 +54,14 @@ export const useAuthStore = create(
                 });
                 localStorage.removeItem('token');
                 localStorage.removeItem('tenant');
+                localStorage.removeItem('user');
             },
 
             initialize: async () => {
                 const token = localStorage.getItem('token');
-                const tenant = JSON.parse(localStorage.getItem('tenant') || 'null');
+                const tenant = safeParse('tenant', null);
 
-                if (token && tenant) {
+                if (token && token !== 'undefined' && tenant) {
                     set({
                         token,
                         tenant,
@@ -55,12 +70,20 @@ export const useAuthStore = create(
                     });
                     return true;
                 }
+
+                // Nothing valid in storage — ensure state is clean
+                set({
+                    token: null,
+                    tenant: null,
+                    isAuthenticated: false,
+                    isLoading: false,
+                });
                 return false;
             },
 
             updateUser: (user) => {
                 set({ user });
-                localStorage.setItem('user', JSON.stringify(user));
+                localStorage.setItem('user', JSON.stringify(user ?? null));
             },
 
             hasPermission: (permission) => {

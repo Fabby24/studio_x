@@ -52,11 +52,19 @@ const LoginPage = () => {
             await authService.login(data.email, data.password);
 
             const store = useAuthStore.getState();
-            const userRole = store.user?.role;
-            const dashboardRoute = userRole === 'super_admin' || userRole === 'org_admin'
-                ? '/dashboard/admin'
-                : '/dashboard/team';
+            const user = store.user;
+            const userRole = user?.role;
+            
+            let dashboardRoute;
+            if (userRole === 'super_admin') {
+                dashboardRoute = '/dashboard/super-admin';
+            } else if (userRole === 'org_admin') {
+                dashboardRoute = '/dashboard/admin';
+            } else {
+                dashboardRoute = '/dashboard/team';
+            }
 
+            
             setTimeout(() => {
                 navigate(dashboardRoute, { replace: true });
             }, 500);

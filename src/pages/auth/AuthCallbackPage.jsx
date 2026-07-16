@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { authService } from '../../services/authService';
+import { authApi } from '../../api/authApi';
 import { Loader2 } from 'lucide-react';
 
 const AuthCallbackPage = () => {
@@ -32,9 +33,13 @@ const AuthCallbackPage = () => {
                 
                 // Store token
                 localStorage.setItem('token', token);
+
+                const repsonse = await authApi.getProfile({
+                    headers: { Authorization: `Bearer ${token}` }
+                })
                 
                 // Fetch user profile
-                const { user, tenant } = await authService.getProfile();
+                const { user, tenant } = repsonse.data.data;
                 
                 // Set auth state
                 login(user, token, tenant);
@@ -53,6 +58,7 @@ const AuthCallbackPage = () => {
                 
             } catch (error) {
                 console.error('Auth callback error:', error);
+                localStorage.removeItem('token');
                 setError('Failed to authenticate. Please try again.');
                 setTimeout(() => navigate('/login'), 3000);
             } finally {
