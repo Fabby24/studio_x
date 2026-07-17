@@ -18,6 +18,8 @@ const TeamDashboard = lazy(() => import('../pages/dashboard/TeamDashboardPage'))
 
 //users page
 const UsersPage = lazy(() => import('../pages/users/UsersPage'));
+const ProjectsPage = lazy(() => import('../pages/projects/ProjectsPage'));
+const ProjectDetailsPage = lazy(() => import('../pages/projects/ProjectDetailsPage'));
 
 
 const PageLoader = () => (
@@ -59,6 +61,8 @@ const AppRoutes = () => {
                 >
                     <Route path="/dashboard/admin" element={<AdminDashboard />} />
                     <Route path="/users" element={<UsersPage />} />
+                    <Route path="/projects" element={<ProjectsPage />} />
+                    <Route path="/projects/:id" element={<ProjectDetailsPage />} />
                 </Route>
 
                 {/* Team Member Only */}
@@ -66,6 +70,8 @@ const AppRoutes = () => {
                     element={<ProtectedRoute allowedRoles={['team_member']} />}
                 >
                     <Route path="/dashboard/team" element={<TeamDashboard />} />
+                    <Route path="/projects" element={<ProjectsPage />} />
+                    <Route path="/projects/:id" element={<ProjectDetailsPage />} />
                 </Route>
 
                 {/* Fallback */}

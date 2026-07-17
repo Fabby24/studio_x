@@ -27,6 +27,10 @@ const UsersPage = lazy(() => import('./pages/users/UsersPage'));
 // Organization Management (Super Admin only)
 const OrganizationsPage = lazy(() => import('./pages/organizations/OrganizationsPage'));
 
+//projects management
+const ProjectsPage = lazy(() => import('./pages/projects/ProjectsPage'));
+const ProjectDetailsPage = lazy(() => import('./pages/projects/ProjectDetailsPage'));
+
 // Error Pages
 const NotFoundPage = lazy(() => import('./pages/errors/NotFoundPage'));
 const UnauthorizedPage = lazy(() => import('./pages/errors/UnauthorizedPage'));
@@ -98,10 +102,9 @@ function App() {
                                 {/* Team Members - Org Admin sees only their organization's users */}
                                 <Route path="/users" element={<UsersPage />} />
                                 
-                                {/* Additional org admin routes will go here */}
-                                {/* <Route path="/clients" element={<ClientsPage />} /> */}
-                                {/* <Route path="/projects" element={<ProjectsPage />} /> */}
-                                {/* <Route path="/tasks" element={<TasksPage />} /> */}
+                                <Route path="/projects" element={<ProjectsPage />} />
+                                <Route path="/projects/:id" element={<ProjectDetailsPage />} />
+                
                             </Route>
                         </Route>
 
@@ -110,10 +113,9 @@ function App() {
                             <Route element={<MainLayout />}>
                                 {/* Team Member Dashboard */}
                                 <Route path="/dashboard/team" element={<TeamDashboard />} />
-                                
-                                {/* Team members can see their own tasks */}
-                                {/* <Route path="/my-tasks" element={<MyTasksPage />} /> */}
-                                {/* <Route path="/time-tracking" element={<TimeTrackingPage />} /> */}
+                                <Route path="/projects" element={<ProjectsPage />} />
+                                <Route path="/projects/:id" element={<ProjectDetailsPage />} />
+                           
                             </Route>
                         </Route>
 
